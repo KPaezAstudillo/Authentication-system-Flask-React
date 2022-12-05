@@ -6,7 +6,8 @@ const getState = ({ getStore, getActions, setStore }) => {
     store: {
       token: null,
       currentUser: null,
-  
+      errorMessage: false,
+
     },
     actions: {
       // Use getActions to call a function within a fuction
@@ -18,7 +19,7 @@ const getState = ({ getStore, getActions, setStore }) => {
         try {
           const store = getStore();
           const options = {
-            headers:{
+            headers: {
               "Authorization": "Bearer " + store.token
             }
           }
@@ -33,8 +34,8 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       syncTokenFromSessionStorage: () => {
-        const token =sessionStorage.getItem("token");
-        if (token && token !== "" && token !== undefined) setStore({token: token})
+        const token = sessionStorage.getItem("token");
+        if (token && token !== "" && token !== undefined) setStore({ token: token })
 
       },
       checkUser: () => {
@@ -47,7 +48,8 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       logout: () => {
         sessionStorage.removeItem("token");
-        setStore({token: null});
+        setStore({ token: null });
+        setStore({ errorMessage: false });
 
 
       },
@@ -62,28 +64,28 @@ const getState = ({ getStore, getActions, setStore }) => {
             "password": password
           })
         }
-        try{
-        const res = await fetch(`${process.env.BACKEND_URL}/api/token`, options)
-        if (res.status !== 200) {
-          alert("There has been some error");
-          return false;
-        }
-        const data = await res.json()    
-        sessionStorage.setItem("token", data.access_token)
-        setStore({token: data.access_token})        
-        navigate("/private");
-        return true;
-      
-      }
-      catch(error){
-        console.log("Error login in")
-      }
+        try {
+          const res = await fetch(`${process.env.BACKEND_URL}/api/token`, options)
+          if (res.status !== 200) {
+            setStore({ errorMessage: true });
+            return false;
+          }
+          const data = await res.json()
+          sessionStorage.setItem("token", data.data.access_token)
+          setStore({ token: data.data.access_token })
+          navigate("/private");
+          return true;
 
-      //
+        }
+        catch (error) {
+          console.log("Error login in")
+        }
+
+        //
+
+      },
 
     },
-
-  },
   };
 };
 

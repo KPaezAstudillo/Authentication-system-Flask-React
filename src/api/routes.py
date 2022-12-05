@@ -8,21 +8,66 @@ from api.utils import generate_sitemap, APIException
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 api = Blueprint('api', __name__)
 
+@api.route('/users', methods=['POST'])  # type: ignore
+def store_user():
+    id = request.json.get('id')
+    firstname = request.json.get('firstname')  # type: ignore
+    lastname = request.json.get('lastname')  # type: ignore
+    email = request.json.get('email')  # type: ignore
+    password = request.json.get('password')  # type: ignore
+    is_active = request.json.get('is_active')  # type: ignore
 
-@api.route("/token", methods=["POST"])
-def create_token():
-    email = request.json.get("email", None)
-    password = request.json.get("password", None)
-    if email != "test" or password != "test":
-        return jsonify({"msg": "Bad email or password"}), 401
+    user = User()
+    user.id = id
+    user.firstname = firstname
+    user.lastname = lastname
+    user.email = email
+    user.password = generate_password_hash(password)
+    user.is_active = is_active
+    user.save()
 
-    access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token)
+    return jsonify(user.serialize()), 201
 
+
+
+# @api.route("/token", methods=["POST"])
+# def create_token():
+#     email = request.json.get("email", None)
+#     password = request.json.get("password", None)
+#     if email != "test" or password != "test":
+#         return jsonify({"msg": "Bad email or password"}), 401
+
+#     access_token = create_access_token(identity=email)
+#     return jsonify(access_token=access_token)
+
+@api.route('/token', methods=['POST'])
+def login():
+
+    email = request.json.get('email') 
+    password = request.json.get('password')
+
+    if not email: return jsonify({ "status": "error", "code": 400, "message": "E-mail is required!"}), 400
+    if not password: return jsonify({ "status": "error", "code": 400, "message": "Password is required!"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user: return jsonify({ "status": "error", "code": 401, "message": "E-mail/Password are incorrects"}), 401
+    if not check_password_hash(user.password, password): return jsonify({ "status": "error", "code": 401, "message": "E-mail/Password are incorrects"}), 401
+
+
+    access_token = create_access_token(identity=user.id)
+
+    data = {
+        "access_token": access_token,
+        "user": user.serialize()
+    }
+
+    return jsonify({ "status": "success", "code": 200, "message": "User loggin successfully!", "data": data}), 200
 
 @api.route("/hello", methods=["GET"])
 @jwt_required()

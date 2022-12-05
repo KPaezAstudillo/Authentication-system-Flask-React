@@ -12,7 +12,7 @@ const Login = () => {
     backgroundSize: "cover",
     backgroundPosition: "center center",
     width: "100%",
-    height: "75vh",
+    height: "100vh",
   };
 
   const { store, actions } = useContext(Context);
@@ -73,6 +73,8 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
+                {store.errorMessage && (<div className='row '>
+                  <div className='col-10 bg-danger text-white p-3 mx-auto d-flex justify-content-center' >Email and password does not match</div></div>)}
                 <div className="m-5 text-center">
                   <button
                     // type="submit"
