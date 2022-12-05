@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 
 const getState = ({ getStore, getActions, setStore }) => {
+
   return {
     store: {
       token: null,
@@ -15,10 +16,16 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       getMessage: async () => {
         try {
+          const store = getStore();
+          const options = {
+            headers:{
+              "Authorization": "Bearer " + store.token
+            }
+          }
           // fetching data from the backend
-          const resp = await fetch(process.env.BACKEND_URL + "/api/hello");
+          const resp = await fetch(process.env.BACKEND_URL + "/api/hello", options);
           const data = await resp.json();
-          setStore({ message: data.message });
+          setStore({ message: data.msg });
           // don't forget to return something, that is how the async resolves
           return data;
         } catch (error) {

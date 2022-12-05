@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import { useNavigation } from '@react-navigation/native';
 // import { Navigate } from "react-router-dom";
 import { Context } from "../store/appContext";
@@ -20,6 +20,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [login, setLogin] = useState(true)
   const navigate = useNavigate();
+
 
 
   const handleSubmit = (e) => {
@@ -87,6 +88,7 @@ const Login = () => {
           </div>
         </div>
       </section>
+
     </>
   );
 };
