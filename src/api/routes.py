@@ -73,6 +73,6 @@ def login():
 @jwt_required()
 def get_hello():
     message = {
-        "msg" : "hello world"
+        "msg" : "you are logged in"
     }
     return jsonify(message)
